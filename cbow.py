@@ -97,4 +97,4 @@ def cargar_modelo_completo(nombre_archivo='pesos_cbow_pc2_epoca0.npz'):
         print(f"Error: No se encontró el archivo '{nombre_archivo}'.")
         return None, None, None, None, None
 
-W1, W2 = entrenar_cbow(corpus, vocab_size, word_to_idx, "pc2", 1)
+W1, W2 = entrenar_cbow(corpus, vocab_size, word_to_idx, "pc2", 500)
