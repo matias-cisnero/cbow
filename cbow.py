@@ -58,11 +58,43 @@ def entrenar_cbow(corpus, vocab_size, word_to_idx, nombre_pc, epocas=1, η=0.001
         print(f"Fin de época: {epoca}")
 
         # ---Guardado de Pesos---
-        nombre_archivo = f'pesos_cbow_pc{nombre_pc}_epoca{epoca}.npz'
-        np.savez(nombre_archivo, W1=W1, W2=W2)
-        print(f"Pesos W1 y W2 guardados exitosamente en el archivo '{nombre_archivo}'")
+        nombre_archivo = f'pesos_cbow_{nombre_pc}_epoca{epoca}.npz'
+        np.savez(nombre_archivo, W1=W1, W2=W2, eta=η, N=N, C=C)
+        print(f"Pesos e hiperparámetros guardados exitosamente en '{nombre_archivo}'")
 
     print(f"Entrenamiento con {epocas} terminado.")
     return W1, W2
 
-W1, W2 = entrenar_cbow(1)
+def cargar_modelo_completo(nombre_archivo='pesos_cbow_pc2_epoca0.npz'):
+    """
+    Carga los pesos W1, W2 y los hiperparámetros N, C y eta 
+    desde un archivo .npz.
+    """
+    try:
+        data = np.load(nombre_archivo)
+        
+        # Carga de los pesos (arreglos)
+        W1 = data['W1']
+        W2 = data['W2']
+        
+        # --- Carga de los hiperparámetros (escalares) ---
+        # Usamos .item() para convertirlos de array(valor) a valor
+        N = data['N'].item()
+        C = data['C'].item()
+        eta = data['eta'].item()
+        
+        print(f"Modelo cargado exitosamente desde '{nombre_archivo}'")
+        print(f"  Shape de W1: {W1.shape}")
+        print(f"  Shape de W2: {W2.shape}")
+        print("  Hiperparámetros recuperados ⚙️:")
+        print(f"    N (Embedding Dim) = {N}")
+        print(f"    C (Context Size) = {C}")
+        print(f"    η (Learning Rate) = {eta}")
+        
+        return W1, W2, N, C, eta
+        
+    except FileNotFoundError:
+        print(f"Error: No se encontró el archivo '{nombre_archivo}'.")
+        return None, None, None, None, None
+
+W1, W2 = entrenar_cbow(corpus, vocab_size, word_to_idx, "pc2", 1)
