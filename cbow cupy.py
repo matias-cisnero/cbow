@@ -16,29 +16,40 @@ def softmax(h):
     num = cp.exp(h)
     return num / cp.sum(num)
 
+def generar_pares_central_contexto(corpus, word_to_idx, C=4):
+
+    pares = []
+
+    for i in range(C, len(corpus)-C):
+        # Palabra objetivo
+        palabra_central = corpus[i]
+        palabra_central_indice = word_to_idx[palabra_central]
+
+        # Palabras de entrada
+        palabras_contexto = corpus[i-C:i] + corpus[i+1:i+C+1]
+        palabras_contexto_indices = [word_to_idx[word] for word in palabras_contexto]
+
+        pares.append([palabra_central_indice, palabras_contexto_indices])
+    return pares
+
 def entrenar_cbow(corpus, vocab_size, word_to_idx, nombre_pc, epocas=1, η=0.001, N=300, C=4, W1=None, W2=None):
-    if W1 == None or W2 == None:
+    if W1 is None or W2 is None:
         W1 = cp.random.normal(0, 0.1, (vocab_size, N))
         W2 = cp.random.normal(0, 0.1, (N, vocab_size))
     else:
         W1 = cp.asarray(W1)
         W2 = cp.asarray(W2)
 
+    indice_tuplas = generar_pares_central_contexto(corpus, word_to_idx, C)
+    total_pares = len(indice_tuplas)
+
     print(f"Comienzo de entrenamiento con {epocas} epocas.")
     for epoca in range(epocas):
-        for i in range(C, len(corpus)-C):
-
-            # Palabra objetivo
-            palabra_central = corpus[i]
-            palabra_central_indice = word_to_idx[palabra_central]
-
-            # Palabras de entrada
-            palabras_contexto = corpus[i-C:i] + corpus[i+1:i+C+1]
-            palabras_contexto_indices = [word_to_idx[word] for word in palabras_contexto]
+        for i, (i_central, i_contextos) in enumerate(indice_tuplas):
 
             # ---Propagación---
 
-            h = cp.mean(W1[palabras_contexto_indices], axis=0).reshape(-1, 1)
+            h = cp.mean(W1[i_contextos], axis=0).reshape(-1, 1)
 
             u = W2.T @ h
 
@@ -46,24 +57,24 @@ def entrenar_cbow(corpus, vocab_size, word_to_idx, nombre_pc, epocas=1, η=0.001
 
             # ---Retropropagación---
 
-            E = -u[palabra_central_indice] + cp.log(cp.sum(cp.exp(u)))
+            E = -u[i_central] + cp.log(cp.sum(cp.exp(u)))
 
             e = y.copy()
-            e[palabra_central_indice] -= 1
+            e[i_central] -= 1
 
             W2 -= η * (h @ e.T)
 
             EH = W2 @ e
 
-            W1[palabras_contexto_indices] -= η * (1/C) * EH.T
+            W1[i_contextos] -= η * (1/C) * EH.T
 
             if i % 1000 == 0:
-                print(f"Época {epoca}, Palabra: {i}/{len(corpus)}, Error: {E.item():.4f}")
+                print(f"Época {epoca}, Par: {i}/{total_pares}, Error: {E.item():.4f}")
 
         print(f"Fin de época: {epoca}")
 
         # ---Guardado de Pesos---
-        if epoca % 50 == 0:
+        if epoca % 50 == 0 or epoca == epocas - 1:
             nombre_archivo = f'pesos_cbow_{nombre_pc}_epoca{epoca}.npz'
             W1_np = cp.asnumpy(W1)
             W2_np = cp.asnumpy(W2)
