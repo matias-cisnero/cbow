@@ -12,9 +12,10 @@ vocab_size = len(vocab)
 word_to_idx = {word: i for i, word in enumerate(vocab)}
 idx_to_word = {i: word for word, i in enumerate(vocab)}
 
-def softmax(h):
-    num = cp.exp(h)
-    return num / cp.sum(num)
+def softmax(u):
+    u_max = cp.max(u)# estabiliza restando el máximo
+    exp_u = cp.exp(u - u_max)
+    return exp_u / cp.sum(exp_u)
 
 def generar_pares_central_contexto(corpus, word_to_idx, C=4):
 
@@ -32,7 +33,7 @@ def generar_pares_central_contexto(corpus, word_to_idx, C=4):
         pares.append([palabra_central_indice, palabras_contexto_indices])
     return pares
 
-def entrenar_cbow(corpus, vocab_size, word_to_idx, nombre_pc, epocas=1, η=0.001, N=300, C=4, W1=None, W2=None):
+def entrenar_cbow(corpus, vocab_size, word_to_idx, nombre_pc, epocas=1, η=0.001, N=300, C=4, W1=None, W2=None, intervalo_guardado=50):
     if W1 is None or W2 is None:
         W1 = cp.random.normal(0, 0.1, (vocab_size, N))
         W2 = cp.random.normal(0, 0.1, (N, vocab_size))
@@ -74,7 +75,7 @@ def entrenar_cbow(corpus, vocab_size, word_to_idx, nombre_pc, epocas=1, η=0.001
         print(f"Fin de época: {epoca}")
 
         # ---Guardado de Pesos---
-        if epoca % 50 == 0 or epoca == epocas - 1:
+        if epoca % intervalo_guardado == 0 or epoca == epocas - 1:
             nombre_archivo = f'pesos_cbow_{nombre_pc}_epoca{epoca}.npz'
             W1_np = cp.asnumpy(W1)
             W2_np = cp.asnumpy(W2)
@@ -84,30 +85,4 @@ def entrenar_cbow(corpus, vocab_size, word_to_idx, nombre_pc, epocas=1, η=0.001
     print(f"Entrenamiento con {epocas} terminado.")
     return W1, W2
 
-def cargar_modelo_completo(nombre_archivo='pesos_cbow_pc2_epoca0.npz'):
-    """
-    Carga los pesos W1, W2 y los hiperparámetros N, C y eta 
-    desde un archivo .npz.
-    """
-    try:
-        data = np.load(nombre_archivo)
-        
-        W1 = data['W1']
-        W2 = data['W2']
-    
-        N = data['N'].item()
-        C = data['C'].item()
-        eta = data['eta'].item()
-        
-        print()
-
-        return W1, W2, N, C, eta
-        
-    except FileNotFoundError:
-        print(f"Error: No se encontró el archivo '{nombre_archivo}'.")
-        return None, None, None, None, None
-
-W1, W2 = entrenar_cbow(corpus, vocab_size, word_to_idx, "pc2", 500, 0.01, 100)
-
-#W1, W2, N, C, eta = cargar_modelo_completo()
-#print(f"Shape de W: {W1.shape}, Shape de W':{W2.shape}, Tipo: {type(W1)}")
+W1, W2 = entrenar_cbow(corpus, vocab_size, word_to_idx, "pc0", epocas=100, η=0.01, N=20, C=4, intervalo_guardado=50)
