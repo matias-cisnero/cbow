@@ -1,7 +1,7 @@
 import numpy as np
 import cupy as cp
 
-with open("corpus.txt", "r", encoding="utf-8") as f:
+with open("corpus/corpus.txt", "r", encoding="utf-8") as f:
     corpus = f.read().splitlines()
 
 # Vocabulario
@@ -12,8 +12,11 @@ vocab_size = len(vocab)
 word_to_idx = {word: i for i, word in enumerate(vocab)}
 idx_to_word = {i: word for word, i in enumerate(vocab)}
 
+# Tamaño de corpus: 310347
+# Tamaño de vocabulario: 30283
+
 def softmax(u):
-    u_max = cp.max(u)# estabiliza restando el máximo
+    u_max = cp.max(u) # Estabiliza restando el máximo
     exp_u = cp.exp(u - u_max)
     return exp_u / cp.sum(exp_u)
 
@@ -58,19 +61,19 @@ def entrenar_cbow(corpus, vocab_size, word_to_idx, nombre_pc, epocas=1, η=0.001
 
             # ---Retropropagación---
 
-            E = -u[i_central] + cp.log(cp.sum(cp.exp(u)))
+            #E = -u[i_central] + cp.log(cp.sum(cp.exp(u)))
 
             e = y.copy()
             e[i_central] -= 1
 
             W2 -= η * (h @ e.T)
 
-            EH = W2 @ e
+            EH = W2 @ e # Duda...
 
             W1[i_contextos] -= η * (1/C) * EH.T
 
             if i % 1000 == 0:
-                print(f"Época {epoca}, Par: {i}/{total_pares}, Error: {E.item():.4f}")
+                print(f"Época {epoca}, Par: {i}/{total_pares}")
 
         print(f"Fin de época: {epoca}")
 
