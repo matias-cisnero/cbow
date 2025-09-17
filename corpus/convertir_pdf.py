@@ -3,7 +3,32 @@ import re
 
 words = []
 
-with pdfplumber.open("pdf/Julio Cortazar Todos los fuegos.pdf") as pdf:
+
+with pdfplumber.open("C:\\Users\\User\\Documents\\Aprendizaje Automatico Avanzado\\Crear Corpus\\Julio-Cortazar-Rayuela.pdf") as pdf:
+    for page in pdf.pages[7:]:
+        text = page.extract_text()
+        if text:
+            lines = text.split('\n')
+            if lines[-1].strip().isdigit():
+                lines = lines[:-1]
+            if lines[0].strip().isdigit():
+                lines = lines[1:]
+            if lines[0].strip().isdigit():
+                lines = lines[1:]
+            if lines[-1].strip().isdigit():
+                lines = lines[:-1]
+            for line in lines:
+                tokens = re.findall(r"\w+|[.,!?;:]", line)
+                tokens = [token.lower() for token in tokens]
+                if line.endswith("."):
+                    tokens[-1]= ". "
+                words.extend(tokens)
+
+print('Rayuela, corpus parcial de', len(words))
+print('Rayuela, vocabulario parcial de', len(set(words)))
+
+
+with pdfplumber.open("C:\\Users\\User\\Documents\\Aprendizaje Automatico Avanzado\\Crear Corpus\\Julio Cortazar Todos los fuegos.pdf") as pdf:
     for page in pdf.pages[:-1]:
         text = page.extract_text()
         if text:
@@ -11,12 +36,17 @@ with pdfplumber.open("pdf/Julio Cortazar Todos los fuegos.pdf") as pdf:
             if lines[-1].strip().isdigit():
                 lines = lines[:-1]
             for line in lines:
+                
                 tokens = re.findall(r"\w+|[.,!?;:]", line)
+                tokens = [token.lower() for token in tokens]
+                if line.endswith("."):
+                    tokens[-1]= ". "
                 words.extend(tokens)
+print('Todos los fuegos, corpus parcial de', len(words))
+print('Todos los fuegos, vocabulario parcial de', len(set(words)))
 
 
-
-with pdfplumber.open("pdf/Historias-de-Cronopios-y-de-Famas - Julio Cortazar.pdf") as pdf:
+with pdfplumber.open("C:\\Users\\User\\Documents\\Aprendizaje Automatico Avanzado\\Crear Corpus\\Historias-de-Cronopios-y-de-Famas - Julio Cortazar.pdf") as pdf:
     for page in pdf.pages[3:-1]:
         text = page.extract_text()
         if text:
@@ -25,11 +55,16 @@ with pdfplumber.open("pdf/Historias-de-Cronopios-y-de-Famas - Julio Cortazar.pdf
                 lines = lines[:-1]
             for line in lines:
                 tokens = re.findall(r"\w+|[.,!?;:]", line)
+                tokens = [token.lower() for token in tokens]
+                if line.endswith("."):
+                    tokens[-1]= ". "
                 words.extend(tokens)
 
+print('Historias de cronopios y de famas, corpus parcial de', len(words))
+print('Historias de cronopios y de famas, vocabulario parcial de', len(set(words)))
 
-with pdfplumber.open("pdf/Lucas_Julio_Cortazar.pdf") as pdf:
-    for page in pdf.pages[5:-1]:
+with pdfplumber.open("C:\\Users\\User\\Documents\\Aprendizaje Automatico Avanzado\\Crear Corpus\\Lucas_Julio_Cortazar.pdf") as pdf:
+    for page in pdf.pages[5:]:
         text = page.extract_text()
         if text:
                 lines = text.split('\n')
@@ -38,6 +73,9 @@ with pdfplumber.open("pdf/Lucas_Julio_Cortazar.pdf") as pdf:
                 lines = lines[1:]
                 for line in lines:
                     tokens = re.findall(r"\w+|[.,!?;:]", line)
+                    tokens = [token.lower() for token in tokens]
+                    if line.endswith("."):
+                        tokens[-1]= ". "
                     words.extend(tokens)
 
 print('Se crea un vocabulario de', len(set(words)))
