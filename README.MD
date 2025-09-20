@@ -1,6 +1,6 @@
 # 📚 NLP Models
 
-Proyecto realizado por [Matías Cisnero](https://github.com/matias-cisnero), [Nicolas Seivane](https://github.com/NicolasSeivane) y [Franco Serafini]().  
+Proyecto realizado por [Matías Cisnero](https://github.com/matias-cisnero), [Nicolas Seivane](https://github.com/NicolasSeivane) y [Franco Serafini](https://github.com/francoSerafini).  
 
 Este proyecto implementa **modelos de representación de palabras desde cero**, utilizando únicamente **NumPy** y **CuPy (CUDA)** para cálculo matricial acelerado en GPU. Es un ejercicio práctico de **aprendizaje automático avanzado**, diseñado para explorar implementaciones desde cero y comprender el funcionamiento interno de **Word2Vec**.  
 
@@ -75,10 +75,14 @@ Este proyecto implementa **modelos de representación de palabras desde cero**, 
 
 ```
 nlp-models/
-├── cbow.py              <- Implementación del modelo CBOW
-├── skipgram.py          <- Implementación del modelo Skip-gram
+├── funciones auxiliares.py
+├── cbow.py                <- Modelo CBOW (CuPy)
+├── skipgram.py            <- Modelo Skip-gram (CuPy)
+├── skipgram_neg_samp.py   <- Modelo Skip-gram con negative sampling (NumPy)
+├── probar_modelos.ipynb   <- Notebook para interactuar con los modelos
 ├── corpus/                <- Corpus de entrenamiento
-├── experiments/                <- Pruebas de código
+├── experiments/           <- Pruebas de código
+├── docs/           <- Documentos y presentaciones
 └── README.md
 ```
 
